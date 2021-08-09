@@ -5,15 +5,28 @@
 
 #include <cstdint>
 #include <string>
+#include <map>
+
+typedef std::pair<size_t, std::string> substr_t;
 
 //! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
 //! possibly overlapping) into an in-order byte stream.
 class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
+    // use min priority queue to hold unassembled substring
+    std::map<size_t, std::string, std::less<size_t>> _unassembled{};
+    size_t _unassembled_size = 0;
+    size_t _ackno = 0;              // record the position of the next expected byte
+    bool input_ended = false;
 
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
+
+    substr_t top_unassembled();
+    void pop_unassembled();
+    void insert_unassembled(substr_t p);
+    void try_assemble();
 
   public:
     //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.
@@ -46,6 +59,8 @@ class StreamReassembler {
     //! \brief Is the internal state empty (other than the output stream)?
     //! \returns `true` if no substrings are waiting to be assembled
     bool empty() const;
+
+    size_t get_ackno() const { return _ackno; }
 };
 
 #endif  // SPONGE_LIBSPONGE_STREAM_REASSEMBLER_HH

@@ -14,8 +14,7 @@ using namespace std;
 //! \param n The input absolute 64-bit sequence number
 //! \param isn The initial sequence number
 WrappingInt32 wrap(uint64_t n, WrappingInt32 isn) {
-    DUMMY_CODE(n, isn);
-    return WrappingInt32{0};
+    return isn + n;
 }
 
 //! Transform a WrappingInt32 into an "absolute" 64-bit sequence number (zero-indexed)
@@ -29,6 +28,14 @@ WrappingInt32 wrap(uint64_t n, WrappingInt32 isn) {
 //! and the other stream runs from the remote TCPSender to the local TCPReceiver and
 //! has a different ISN.
 uint64_t unwrap(WrappingInt32 n, WrappingInt32 isn, uint64_t checkpoint) {
-    DUMMY_CODE(n, isn, checkpoint);
-    return {};
+    /*
+        checkpoint is within +/- 2^31 of the correct abs seqno, so the distance from
+        checkpoint to n creates no problem of overflowing. If wrap(checkpoint, isn)
+        is large(2^32-1), and n is small(0), cp2n still produce correct distance
+        because for int32_t the MSB is sign bit. But when it is converted 
+        back to unsigned, (0-2^32+1) exceeds the expected answer(1) by -2^32.
+    */
+    int32_t cp2n = n - wrap(checkpoint, isn);
+    int64_t abs_seqno = checkpoint + cp2n;
+    return abs_seqno >= 0 ? abs_seqno : abs_seqno + (1UL << 32);
 }
