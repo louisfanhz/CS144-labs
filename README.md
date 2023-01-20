@@ -1,3 +1,7 @@
+Lab Assignment for Standford CS144. This repo is incomplete and only lab 0 and lab1 are finished. 
+
+=====================================================================================================================
+
 For build prereqs, see [the CS144 VM setup instructions](https://web.stanford.edu/class/cs144/vm_howto).
 
 ## Sponge quickstart
